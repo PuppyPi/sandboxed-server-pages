@@ -1,0 +1,170 @@
+Data types!:
+	• Null (no Undefined though dffldkjfdlkj XD )
+	• Boolean
+	
+	• Number
+		• Integer (infinite precision, but usually efficient impl)
+		• Rational (infinite precision, but usually efficient impl)
+		• Float (64-bit double-precision)
+	
+	• Node
+		+ The only immutable thing that has (reference) "identity"
+	
+	• List
+		• Mutable (and Variable-Length) or Immutable
+		• Element Type:
+			• Default Lists are polymorphic (any contents)
+			• Subtype: Unicode String (elements are UInt32's)
+				+ Note that this can be mutable (and thus variable-length!) too!  In which case it's like a StringBuilder in Java.
+			• Subtype: Byte Array (elements are UInt8's)
+				+ Note that this can be mutable (and thus variable-length!) too!
+	
+	• Set
+		+ Immutable things work like you expect, according to their data (immutable things have no reference identity except for Node)
+		+ Mutable things do NOT work according to their contents but always to their (reference) identity.  This is required in a programming language to prevent hashmaps and hashsets from becoming corrupted!!  ([cough] yeah, *Java* [cough])
+		• Mutable (ofc Variable-Size) or Immutable
+		+ Elements can be absolutely anything!
+	
+	• Map
+		+ Keys work same as Sets
+		• Mutable (Variable-Keyset) or Immutable
+		+ Both keys and values can be absolutely anything!
+	
+	+ Note that while mutable Lists/Sets/Maps *created by SSP code* are always fully modifiable and variable-size, not all instances are, since you can get views of some that aren't (eg, a map's keyset is mutable if the underlying map is, but you can't modify it *by modifying the key set* only by modifying the map!)
+	
+	
+	• Struct (Custom Datatype)
+		• Mutable (ofc Variable-Size) or Immutable
+		+ Can be defined within SSP or by the container for communication with SSP!
+	
+	
+	+ Static typing is optional but improves performance
+		If static typing is not used, core operations will fail if the type is wrong, but struct field accesses will be converted into the (*massively slower*) LookupGet and LookupSet operations!
+		Static typing includes (only) the "?" modifier which allows null for that type (eg, SSP "boolean" is like Java "boolean", and SSP "boolean?" is like Java "Boolean"  :3 )
+		And static typing ofc can specify mutable-only, immutable-only, or either as well!  (it's up to the syntax/parser how it does that though X3 )
+
+
+
+
+Control flow and operations!:
+	• Branches: If/ElseIf/Elif/Else or SwitchCase/SelectCase/ChooseWhen
+		• All others are syntactic sugar for a simple if/else
+	
+	• Loops
+		• ForEach (over a list, set, map's keys, or struct's values)
+		• ForEachPair (over a map's keys and values simultaneously)
+		• Repeat (a traditional for loop with a counter that starts at one point and goes a certain number of iterations)
+		• While/Until (all others are syntactic sugar for while loops)
+	
+	• Note: there is no break or continue in loops; just use boolean variables and if/else/elseif (it would be confusing otherwise what happened to HTML in between, since it is a templating language after all! XD )
+		+ This can also easily enable some interesting code transpilations and optimizations since SSP is Perfectly Structured Code :>
+	
+	• Call SSP taglib (eg, like calling a procedure)
+		• SSP taglib tags have no "return value" per se, but they do have zero, one, or more output variables which, upon it returning to the caller, set variables in its scope (just like "a, b = f(x)" in Python or Lua)  :3
+	
+	• Call SSP-defined function (just equivalent to calling a taglib tag which has only one output variable which is used as the "return value")
+		+ May be compiled into an actual Java/etc. function though for performance! (only if any taglib with only one byref variable would be converted to that!)
+	
+	• Operations!
+		• Output (this is the implicit operation by just having text lying around since it is a templating language after all XD unless Headless is specified for the source code file)
+			+ Represented in the abstract syntax tree as a procedure (no return value) taking a single UnicodeString input
+		
+		• Fail
+			Explicit page failure (this is just "throw" in Java)
+			(there is no try/catch, since recoverable/signal-type failures don't happen often in web templating languages XD )
+			This causes a 500 Internal Server error response (or tries to; see below) and triggers the error monitoring logic defined by the outside code, so it's not to be used lightly!
+			+ Represented in the abstract syntax tree as a procedure (no return value) taking a single UnicodeString input
+			+ There is a procedure one (like a tag) and one that appears to be a function with a return value but which actually just fails the program and never returns XD
+		
+		• Variables and Structs
+			• Get/Set
+				+ "gets/sets" (for structs) on untyped variables are converted to LookupGet/LookupSet for structs by the SSP parser.
+				• Set is not allowed on immutable structs (which is known at compile time since these are Get/Set not LookupGet/LookupSet!)
+			• LookupGet/LookupSet a field from a struct dynamically, given a string input as the field name!; these are represented as normal functions/procedures in the abstract syntax tree (because they are!); these are also MUCH slower than Get/Set!!!
+				• any LookupGet(struct obj, String fieldName)
+				• void LookupSet(struct obj, String fieldName, any newValue)
+		
+		• Short-circuiting boolean AND and OR (also variadic!) just like Java or most languages (except they're variadic)
+		
+		• Conditional Expression (Java "a ? b : c" and Python "b if a else c")
+			Only evaluates the part that gets returned! (eg, in case one part contains fail() !! )
+		
+		
+		• Data Operations (Built-in Compiler Functions/Procedures)
+			+ So numerous they're defined in another documentation file XD
+
+
+
+
+
+
+Directives:
+	• Use active-memory-usage (a WeakSet of all objects) for the memory quota not total-accumulated-allocations (with just a counter) to reduce quota-exceeded exceptions but at the expense of performance
+		+ Applies to the entire page/program (can be defined in taglib files but if the outermost page defines it, its setting takes priority (so that way a library file that does lots of allocations and deallocations can set this for the convenience of web page designers using it :3))
+		+ Toplevel page files can set this to either Allocations or True-Usage but taglib (library) files can only set it to True-Usage so that a confusing situation where two library files explicitly set it to opposite values doesn't happen)
+			+ So unless the toplevel page sets it to Allocations explicitly, At Least One library file setting it to True-Usage causes the whole program to be True-Usage.
+		+ The default is Allocations.
+	
+	• Headless: do not output anything; this is a code/logic-only file! (eg, a taglib function just as normal code (eg, a date formatter))
+		+ Applies to the file it is defined in.
+
+
+
+
+Communication with the outside:
+	
+	• SSP *cannot ever call outside code* (in the secure, locked-down implementations (engines) )
+		+ This is not meant to operate on a threat model where the outside code is untrusted, but to avoid the (possibly) untrusted SSP code *accidentally* calling outside code!!  (JSP for example, can call code the author of the code may have had no idea it could call just through ${} expressions!)
+		+ This can be overridden for some SSP implementations that aren't meant to run untrusted code (but are just for people who really like SSP ://3 )
+			+ For example, allowing the outside code to provide variables with "lazy values", which are nullary lambdas that are either used and called *once* and the value cached, or are not used and called zero times.  SSP cannot distinguish between these and normal (eager) values provided to it.  (This allows for entire database queries to not be done if they're unnecessary)
+			+ And custom tags
+			+ This should probably only be done in ways that are very explicit!  Unlike JSP which allows ridiculous amounts of access to Java code that the coders may have never intended to be accessed by JSP! XD  (and thus, security aside, they might refactor-rename and update all Java invocations, but *no IDE can possibly* update the uses of it in JSP since JSP is dynamically-typed!!  The same is true for fields in SSP, but those are annotated with @SSPField and so it is explicit.)
+				+ But you could have @SSPGetter and @SSPSetter to explicitly mark them :3
+			+ It's invisible to SSP though!  The SSP language doesn't need to be affected; just functions and procedures provided that appear equivalent to custom ones written in SSP :>    (no "EL extensions" like in JSP dlksjdflkjf that totally screws up *field* and *array* access which should be insanely fast! X'D   and no custom control flow things!! if's and while loops in SSP should be if's and while loops in Java!! sdlkjslksjf XD )
+			+ And have either a *whole separate git branch of the SSP engine* or a boolean parameter during instantiation of the SSP engine that can't ever be changed as to whether these features are on or off (or better, two functions "newLockedInstance()" or "newUnlockedInstance()" for maximum clarity in security audits! :3 )
+	• All communication occurs at the beginning and end of the program through variables and the text output
+		• Input Variables are set by the outside logic (eg, like how Java EE code sets variables for JSP), and often involve custom structs
+		• Output Variables are set by the SSP page/program and read by the outside
+		+ java.util.Lists and Sets and Maps are even copied in case their runtime class is not normal (like ArrayList or LinkedList or etc.)
+	• Structs can be defined outside SSP and (in the Java implementation at least) annotations make this easy
+		+ External structs' accesses are done purely through fields, not methods like getters!  So SSP can't ever call outside code.
+		+ The Java classes that correspond to the structs can have methods! it's just that SSP won't call them; it will only get and set public fields.
+		+ If a definition of the struct datatype is given that conflicts with the name of the externally-defined one, it must be a subset (or equal to) the externally-defined one's fields.
+		+ External structs can be either mutable or immutable but immutable ones cannot be created by SSP!  (even if the struct is redefined within SSP.  I mean if it's not intended to be the same thing as the externally-defined one, then you'll run into field conflicts anyway probably!)
+	• Note that an externally-defined struct class that is defined as mutable (with all exposed public fields as mutable, not "final" in Java) can still be considered to be immutable in SSP (it will just use an internal wrapper class then unwrap it if it's sent to an Output Variable :3 ), and SSP will use its own definition of equals and hashCode for them (like it does for mutable structs too).
+	
+	• SSP sets, keys for maps, equals, and hashCode are
+		• a) specifically defined and might not match the outside language (eg, Java considers mutable datastructures to have hashCode/equals() the same as immutable ones @,@ )
+		• b) will use its own internal code for it and not ever call equals()/hashCode() on an externally-defined struct class! (remember, SSP Does Not Call Outside Code! that's the price you pay for enough security to *let strangers run random code on your possibly-critical webserver!! @,@*  XD' )
+
+
+
+
+
+
+
+
+
+Performance:
+	SSP is always run by being transpiled into the surrounding programming language (eg, Java) then dynamically compiled and loaded into memory :>>
+	(ideally the surrounding language gets then further compiled to machine code through JIT for bleeding-edge performance! :D )
+
+
+
+Dealing with resource quotas:
+	• Loop Quota
+		Every loop has an increment/check at the end of it and, whether it's an inner loop, outer loop, loop in a taglib tag, loop in a taglib tag invoked by itself recursively! or etc., it all increments the loop counter for the entire page/program!
+		If this check fails (loop counter > quota maximum) then the page/program fails
+	
+	• Recursion Quota
+		The first line in any transpiled function is a increment/check for recursion depth.
+		The underlying programming language will probably have some quota of its own (StackOverflowError), but this allows it to be set to much less for SSP pages :3
+	
+	• Memory Quota
+		The SSP engine tracks the objects allocated by the SSP page/program (though not the ones given by the outside code) and keeps a tally so that new allocations increment/check and may fail.
+		However, the default way (a monotonically increasing counter) is extremely fast but inaccurate because it doesn't track de-allocations (from garbage collection), and so there is a directive for a page to switch itself to a much slower technique based on weak-references (a la java.util.WeakHashMap, but not that; more like WeakArrayList XD)
+	
+	
+	• Page/Program Failure
+		Just like any web thing, this tries to send HTTP 500 Server Error (withOUT SENDING SERVER DETAILS TO THE RANDOM UNTRUSTED INTERNET PERSON LKDSJfdlkfjdlfkdjfl), but if the HTTP status code has already been sent then this is impossible!  So it does its best and appends something like "<h1>SSP Streaming Dynamic Page Error<br>HTTP 500 Internal Server Error</h1>" (the exact string is configurable (per page or for groups) by the outside).
+		It also calls a callback given to the engine by the outside so it can send someone an email, store it in a database, log it to a log file, whatever :3
