@@ -67,7 +67,8 @@ Control flow and operations!:
 	
 	• Operations!
 		• Output (this is the implicit operation by just having text lying around since it is a templating language after all XD unless Headless is specified for the source code file)
-			+ Represented in the abstract syntax tree as a procedure (no return value) taking a single UnicodeString input
+			+ This is not represented in the abstract syntax tree, instead, there is simply a Mutable String variable named "__output__" provided as an input variable and this operation (if ever present) is simply converted by the parser, or is present in an SSP-defined standard library file as just append()ing to that variable
+				+ This way, if the SSP core is ever used for..not server pages, there won't be a strange output() function in contexts that would be confusing XD (like public sites allowing random people to upload little bits of pure mathematics code or a site allowing complex configuration code or etc. untrusted code that needs to be both fast and secure :> )
 		
 		• Fail
 			Explicit page failure (this is just "throw" in Java)
