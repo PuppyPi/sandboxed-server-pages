@@ -1,0 +1,149 @@
+• *Anything*
+	• == / !=
+		Just like sets and map keys, this works by contents for immutable data (except for Nodes) and by (reference) identity for mutable data (and Nodes).
+		+ Note that this breaks the IEEE 754 spec for floats by making x = x when x = NaN instead of x != x  (since you can either break the IEEE 754 spec or break *math* (and hashtables) X'D )
+		+ For Numbers, this also works across datatypes (eg, 1 == 1/1 == 2/2 == 1.0f)
+			This is the only cross-datatype equality though.
+	
+	• hashCode()
+		Internally used by sets and maps, so why not expose it? X3
+		+ Note that for Numbers, this must match equality!  So it works across datatypes!  (eg, 1, 1/1, 2/2, and 1.0f must all have the same hashcode!)
+	
+	• literal / "new" immutable (providing alllllll the data for it immediately!)
+		Works for almost everything!  It's just literals for everthing except Nodes, for which it actually makes a new one every time it's invoked!
+		The only thing it *doesn't* work for is externally-defined externally-immutable structs (which SSP would have to call an outside Java/etc. constructor for!)
+	
+	• new blank mutable
+		This doesn't work for everything (you can't make a new null XD )
+		Works for:
+			• List
+			• Set
+			• Map
+			• Struct
+		Doesn't work for:
+			• Null
+			• Boolean
+			• Integer
+			• Rational
+			• Float
+			• Node
+	
+	• immutableCopy()
+		Just returns what's given if it's already immutable, otherwise makes an immutable copy.
+		+ This works for exactly the things that literal/newimmutable does, except that for Nodes, it does NOT create a new Node, just returns the one provided!
+		+ (Future runtimes could theoretically optimize this, when there's no reference-escape of the mutable version, into setting a boolean field in datastructure implementations that throws the required error upon attempts to modify it :3 )
+	
+	• mutableCopy()
+		This doesn't work for everything (you can't make a mutable null or Node XD )
+		+ Particularly structs that SSP isn't allowed to create new versions of!
+		+ (Future runtimes could theoretically optimize this, when there's no reference-escape of the immutable version, into setting a boolean field in datastructure implementations that makes it no longer throw an error upon attempts to modify it! :3 )
+		Works for (always! even externally-defined structs!):
+			• List
+			• Set
+			• Map
+			• Struct
+		Doesnt work for:
+			• Null
+			• Boolean
+			• Integer
+			• Rational
+			• Float
+			• Node
+
+
+• Boolean
+	• NOT
+	• XOR (variadic! but not short-circuiting)
+
+
+• Numbers
+	+ All arithmetic operations follow this sequence of type massaging:
+		• Integer (all Deciding Inputs are integers)
+		• Rational (at least one Deciding Input is a rational and none are floats)
+		• Float (at least one Deciding Input is a float)
+		+ But they may output farther along!  Eg, "1/2" returns a rational not an integer! and sin() may or may not return a float! (depending on the input (sin(0) may = 0 integer) and the SSP implementation (some may use rationals for everything, others may use floats for everything, others may use integers for sin(0) = sinr(0) = sinr(1/2) = 0 and sinr(1/4) = 1 and sinr(3/4) = -1 and sinr( and rationals for sinr(1/6) = 1/2 and floats for everything else)
+	+ And they can go the other way!
+		• Floats might be spontaneously converted to rationals or integers at any time (eg, 0.0 → 0,  0.5 → 1/2)
+		• Rationals might be spontaneously converted to integers at any time (6/1 → 6)
+		+ This is so that any underlying (infinite-precision) arithmetic engine can be used (some of them do this, particularly for rationals, and the SSP implementation might want to do this *all* the time for equals/hashCode working across numeric datatypes!)
+	
+	+ Many are variadic! (namely addition and multiplication)
+	+ Errors (like 1/0 or (-1)^(1/2) or log(-1) or many things with infinities) cause page failure rather than return garbage (like null) so you can know there is a bug!
+		+ Unlike IEEE 754, failures are caused rather than NaNs returned in order that float arithmetic is the same as integer and rational arithmetic (especially since type massaging can happen transparently!)
+	
+	• isNaN
+	
+	• Addition
+	• Subtraction
+	• Multiplication
+	• Division
+	• Modulus ("programmer's modulus" where -1 % 5 = 4 so it's useful for raster scan things like tables/matrices/images and for list accesses (eg, list[i % n]) and for angles (eg, -1° = 355°) for geometry and polar-form complex numbers and for hours-in-a-day and etc.c. XD   ..why isn't Java's modulus like this?!)
+		+ fails when the *denominator* is <= 0
+		+ works for all datatypes, not just integers
+	• Absolute Value
+		+ always works! even for integers 
+	
+	• Exponentiation
+		• Square root is just converted by the parser to this with the exponent = 1/2
+	• Arbitrary-Base Log
+		• Base anything else is just converted by the parser to this / ln(base)
+		+ We use log(x,b) and have ln(x) be the syntactic sugar instead of vice-versa because this way, exact integer values can be returned when possible! (eg, log(64, 2) = 6 not 6.0 or 6/1)
+	
+	• e and tau ;)  (represented as a nullary function in the abstract syntax tree but should probably be like a variable in the source code syntax)
+	
+	• cosr (Cosine-in-Revolutions)
+	• acosr (Inverse Cosine-in-Revolutions)
+	• atanr (Inverse Tangent-in-Revolutions)
+	
+	
+	• Syntactic sugars (see note on log-base-b and sqrt())
+		+ If the compiler wishes to use a more efficient implementations, it should just recognize these as antipatterns so that coders can write, eg, x^(1/2) *or the parser can use a built-in standard library (with sqrt()), **written in SSP!*** and both get the performance of Math.sqrt(x) and no extra functions (that would need to be security-audited) are needed! :D
+		• isInfinite(x) = x == +inf || x == -inf
+		• isFinite(x) = !isNaN(x) && !isInfinite(x)
+		• -x = 0 - x
+		• pi() = tau() / 2
+		• sinr(x) = cosr(x - 1/4)
+		• tanr(x) = sinr(x) / cosr(x)
+		• sin(x) = sinr(x * tau())
+		• cos(x) = cosr(x * tau())
+		• tan(x) = tanr(x * tau())
+		• asinr(x) = acosr(-x) - 1/4
+		• acos(x) = acosr(x) / tau()
+		• asin(x) = asinr(x) / tau()
+		• atan(x) = atanr(x) / tau()
+		• atanr2(y, x) = x > 0 ? atanr(y/x) : (x < 0 && y >= 0 ? atanr(y/x) + 1/2 : (x < 0 && y < 0 ? atanr(y/x) - 1/2 : (x == 0 && y > 0 ? 1/4 : (x == 0 && y < 0 ? -1/4 : fail())))
+			+ note that it hits fail() if x == 0 && y == 0 but also if x is NaN and never returns the constants if either is NaN (and atanr() fails when given NaN), so atan2() fails when either or both are NaN as you'd expect like the other trig functions :>
+		• ln(x) = log(x, e())
+		• log2(x) = log(x, 2)
+		• log10(x) = log(x, 10)
+		• sqrt(x) = x^(1/2)
+
+
+
+
+
+
+• List/Set
+	• List only
+		• void append(@@@ TODO :D
+		
+		• Byte String only
+		• Unicode String only
+	
+	• Set only
+
+
+
+
+
+• Map
+	• get KeySet (as live but readonly set for mutables)
+	• get (returns null @@@ TODO :D
+
+
+
+
+• Mixed
+	• combine()
+		This is the function that corresponds to a universal "+" which adds numbers, concatenates strings/lists, unions sets, etc. and performs some type massaging (like numbers → strings if one arg is a string)
+		@@@ TODO exact semantics!
