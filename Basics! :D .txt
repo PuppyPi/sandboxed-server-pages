@@ -152,17 +152,26 @@ Performance:
 
 
 Dealing with resource quotas:
-	• Loop Quota
-		Every loop has an increment/check at the end of it and, whether it's an inner loop, outer loop, loop in a taglib tag, loop in a taglib tag invoked by itself recursively! or etc., it all increments the loop counter for the entire page/program!
-		If this check fails (loop counter > quota maximum) then the page/program fails
+	• Processing Quota
+		• Loop Quota
+			Every loop has an increment/check at the end of it and, whether it's an inner loop, outer loop, loop in a taglib tag, loop in a taglib tag invoked by itself recursively! or etc., it all increments the loop counter for the entire page/program!
+			If this check fails (loop counter > quota maximum) then the page/program fails.
 	
-	• Recursion Quota
-		The first line in any transpiled function is a increment/check for recursion depth.
-		The underlying programming language will probably have some quota of its own (StackOverflowError), but this allows it to be set to much less for SSP pages :3
+		• Invocation Quota
+			The first or second line in any transpiled function is a increment/check for invocation quota.
+			Whether it's a function, procedure, invoked-by-toplevel, invoked-by-library, invoked-by-*itself!* (recursion), there is one giant counter for "how many function calls" were performed.
+			If this check fails (invocation counter > quota maximum) then the page/program fails.
+	
 	
 	• Memory Quota
-		The SSP engine tracks the objects allocated by the SSP page/program (though not the ones given by the outside code) and keeps a tally so that new allocations increment/check and may fail.
-		However, the default way (a monotonically increasing counter) is extremely fast but inaccurate because it doesn't track de-allocations (from garbage collection), and so there is a directive for a page to switch itself to a much slower technique based on weak-references (a la java.util.WeakHashMap, but not that; more like WeakArrayList XD)
+		• Recursion Depth (Stack) Quota
+			The second or first line in any transpiled function is a increment/check for recursion depth.
+			The underlying programming language will probably have some quota of its own (StackOverflowError), but this allows it to be set to much less for SSP pages :3
+		
+		• Object Graph (Heap) Quota
+			The SSP engine tracks the objects allocated by the SSP page/program (though not the ones given by the outside code) and keeps a tally so that new allocations increment/check and may fail.
+			However, the default way (a monotonically increasing counter) is extremely fast but inaccurate because it doesn't track de-allocations (from garbage collection), and so there is a directive for a page to switch itself to a much slower technique based on weak-references (a la java.util.WeakHashMap, but not that; more like WeakArrayList XD)
+	
 	
 	
 	• Page/Program Failure
