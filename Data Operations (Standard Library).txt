@@ -8,6 +8,7 @@
 	• hashCode()
 		Internally used by sets and maps, so why not expose it? X3
 		+ Note that for Numbers, this must match equality!  So it works across datatypes!  (eg, 1, 1/1, 2/2, and 1.0f must all have the same hashcode!)
+		+ For Nodes and mutables, this must be a simple incrementing counter (eg, the allocation counter!) so that such hashcodes are deterministic for an SSProgram!
 	
 	• literal / "new" immutable (providing alllllll the data for it immediately!)
 		Works for almost everything!  It's just literals for everthing except Nodes, for which it actually makes a new one every time it's invoked!
