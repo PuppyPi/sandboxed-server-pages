@@ -1,3 +1,32 @@
+::Notes::
+	Take your pick of name XD
+	{({Sandboxed|Secure} Server) | (Simple {Sandboxed|Secure})} {Pages|Programs}
+		Sandboxed Server Pages
+		Secure Server Pages
+		Sandboxed Server Programs
+		Secure Server Programs
+		Simple Sandboxed Pages
+		Simple Secure Pages
+		Simple Sandboxed Programs
+		Simple Secure Programs
+	
+	Either way, it's SSP! XD
+
+
+
+SSP is a definition of an (extremely simple) Manage Runtime Environment, like the JVM (not Java) or the .NET CLR (not C#).
+There can be many (mostly equivalent) languages that parse to its core format (an Abstract Syntax Tree object graph, not bytecode like the JVM or CLR, but it's equivalent)  This defines the semantics of how it actually runs and interacts with its environment, what its standard library is, and its data types.
+
+The defining feature of SSP is that it's meant so that you can run (simple but turing-complete) untrusted code on a sensitive system, and run it very fast!  Not that you'll necessarily use it for that, but if it's *designed* for the maximum level of security/reliability, then it'll work for all other levels :)
+(eg, to prevent trusted code from letting a hacker in! or just to enforce code audits and reliability to avoid unexpected behavior from features being enabled you didn't even know were enabled (*cough* JSP accessing any method starting with "get" or "is" as a property *cough* XD) )
+
+Not only is the communication with the outside very locked-down (no communication is possible except one giant block of input at the start and a giant block of output at the end), but there are also memory quotas and processing/CPU quotas to avoid infinite loops and recursions (which are measured in (approximate) number-of-operations not wall time, so if a server bogs down from something, it won't cause unrelated pages/programs to randomly fail!  if it passes once, the same input will make it pass again *no matter what*)
+**SSPrograms are 100% deterministic!** (this is important for caching their output)
+(*note that implementations which break the sandboxing and allow custom extensions may not be 100% deterministic, but Proper SSP Implementations are.)
+
+
+
+
 Data types!:
 	• Null (no Undefined though dffldkjfdlkj XD )
 	• Boolean
