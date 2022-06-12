@@ -33,11 +33,13 @@
 		Just returns what's given if it's already immutable, otherwise makes an immutable copy.
 		+ This works for exactly the things that literal/newimmutable does, except that for Nodes, it does NOT create a new Node, just returns the one provided!
 		+ (Future runtimes could theoretically optimize this, when there's no reference-escape of the mutable version, into setting a boolean field in datastructure implementations that throws the required error upon attempts to modify it :3 )
+			+ BUT IT WOULD NEED TO GET A NEW IDENTITY AND RESPECT EQUALS/HASHCODE/COMPARE LEST CYCLIC DATASTRUCTURES BE CREATED AND CAUSE *EQUALS* TO EVEN FAIL IN INFINITE RECURSION!! X"DD
 	
 	• mutableCopy()
 		This doesn't work for everything (you can't make a mutable null or Node XD )
 		+ Particularly structs that SSP isn't allowed to create new versions of!
 		+ (Future runtimes could theoretically optimize this, when there's no reference-escape of the immutable version, into setting a boolean field in datastructure implementations that makes it no longer throw an error upon attempts to modify it! :3 )
+			+ BUT IT WOULD NEED TO GET A NEW IDENTITY AND RESPECT EQUALS/HASHCODE/COMPARE LEST CYCLIC DATASTRUCTURES BE CREATED AND CAUSE *EQUALS* TO EVEN FAIL IN INFINITE RECURSION!! X"DD
 		Works for (always! even externally-defined structs!):
 			• List
 			• Set
