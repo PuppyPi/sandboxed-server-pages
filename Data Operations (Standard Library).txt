@@ -143,6 +143,10 @@
 
 
 
++ The output of compare() and the order of iteration in map keys and other sets is according to a well-defined sort order that is the same across SSP implementations (to avoid different behavior for the same program) and is certainly deterministic across invocations in the same SSP implementation!
+	!+ Note that this does NOT work for sets and maps themselves!
+
+
 
 • Mixed
 	• combine()
