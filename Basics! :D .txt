@@ -70,6 +70,10 @@ Control flow and operations!:
 			+ This is not represented in the abstract syntax tree, instead, there is simply a Mutable String variable named "__output__" provided as an input variable and this operation (if ever present) is simply converted by the parser, or is present in an SSP-defined standard library file as just append()ing to that variable
 				+ This way, if the SSP core is ever used for..not server pages, there won't be a strange output() function in contexts that would be confusing XD (like public sites allowing random people to upload little bits of pure mathematics code or a site allowing complex configuration code or etc. untrusted code that needs to be both fast and secure :> )
 		
+		• Output Escaped
+			+ Just like output() above but escapes the output (eg, so if you use ${person.email} and it's like "Foo Bar <foo.bar@gmail.com>" then it won't actually output that haha, it'll output "Foo Bar &lt;foo.bar@gmail.com&gt;" when SSP is used for generating HTML (as opposed to, say, CSS!))
+			+ Again, this isn't actually part of the core runtime / language at all; it's added by parsers and standard libraries (eg, so that different escaping can be used for HTML, CSS, Generated Source Code, and nothing at all where output() and outputEscaped() don't exist, like for using this for any untrusted logic on a server with a more normal code syntax!)
+		
 		• Fail
 			Explicit page failure (this is just "throw" in Java)
 			(there is no try/catch, since recoverable/signal-type failures don't happen often in web templating languages XD )
