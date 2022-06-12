@@ -94,6 +94,9 @@ Control flow and operations!:
 	• Call SSP-defined function (just equivalent to calling a taglib tag which has only one output variable which is used as the "return value")
 		+ May be compiled into an actual Java/etc. function though for performance! (only if any taglib with only one byref variable would be converted to that!)
 	
+	• Dynamically call SSP-defined taglib/procedure/function (it's all the same thing)!
+		+ This allows functional programming (and possibly rudimentary OOP as syntactic sugar!)  :>
+	
 	• Operations!
 		• Output (this is the implicit operation by just having text lying around since it is a templating language after all XD unless Headless is specified for the source code file)
 			+ This is not represented in the abstract syntax tree, instead, there is simply a Mutable String variable named "__output__" provided as an input variable and this operation (if ever present) is simply converted by the parser, or is present in an SSP-defined standard library file as just append()ing to that variable
