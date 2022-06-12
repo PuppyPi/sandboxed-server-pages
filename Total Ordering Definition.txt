@@ -1,0 +1,40 @@
+• If they are of different types, this then they're always sorted according to this order:
+	• Immutables
+		• Null
+		• Boolean
+		• Number
+		• List
+		• Set
+		• Map
+		• Struct
+	• Nodes
+	• Mutables
+
+• For both-mutable-objects and both-nodes, the ordering is simply the Identity Integer (which the hashcode also is)
+	+ On implementations where this is of finite bitlength..those implementations simply crash saying "I've crashed in a way other implementations might not" when the 4294967296th (or whatever) object is allocated XD    (which it probably won't ever be XD )
+
+• For booleans, false < true  (like if false was idk, say 0 and true 1  XD )
+
+• If they are both numeric, they are compared how you expect XD
+	(Again, integers, rationals, and floats are all treated equivalently arithmetically; 42 = 42/1 = 42.0  because that's both good for artsy people who don't want to deal with the vagueries of IEEE 754 and for mathematician people who want to use SSP for swapping combinatoric-generating code for something lke the OEIS without much security risk! :D )
+
+• If they are both Unicode Strings (not just lists of integers) then they are compared according to Unicode Lexical Order
+
+• If both or only one is a Byte String (or any other integer/float/boolean/etc. list if those are added in the future), then it's just treated like a normal list of the same integers for comparison, equality, and hashcode.
+	The only difference with Byte Strings/List is that the add/insert/etc. method fails if you try to add anything but the right element type.
+	For reading they're just normal lists.
+	(And operations like getUInt32LE() are faster but still work on normal lists of small integers!; they just fail at runtime if the lists don't have integers in the range [0, 256) in the appropriate element slots)
+
+• If both are lists (including byte strings like I said above or if one is unicode and the other another list) then they're compared by comparing the lengths, then first-element-first and last-element-last (ie, little endian).  This is the most reliably performant way (since forward-iterating is always fast (that's the definition of forward for lists XD) but reverse iterating isn't always (eg, singly-linked lists..although they would need to keep their length for O(1)..but they should do that anyways since the coder demographic will expect len() to be fast!)).
+
+• If both are structs, they're treated like maps with unicode strings for keys
+
+• If both are maps, they're compared simply like they are lists of their values in the sorted order of their keys!  (ie, if you wrote it for lists in SSP, the same code would work for maps because iterating over a map iterates over its keys (like Python) in the order determined by this Ordering here! (unlike Python) XD )
+
+• If both are sets, they're compared according to this algorithm:
+	TODO
+	+ NOTE: this relies on immutable sets NOT EVER EVER HAVING CYCLES
+		+ Which is only possible for code in the outside world to create!  Think about it ;3  XD
+			(though for implementations that sanitize the input like their supposed to from user-defined java.util.Set or whatever's by making a copy, that would crash in StackOverflowError (or gracefully detect this preferably!) and either way, the SSP code would never get run!  So in Proper SSP, this is never an issue!)
+			(note that *Java* does nothing to stop this and equals() and hashCode() just *always* fail in infinite recursion when there's cycles in datastructures *even for mutable sets/lists/maps*!!  X'D   so we're going above and beyond what normal programming languages do, here anyway, so I think it's fine to say "if you mess with SSP and it's not Proper, *equals* might fall into infinite recursion" X'D )
+			(also this system is designed to detect and handle infinite recursions/loops better than normal languages/platforms (even ones that claim sandboxing *cough* Javascript *cough* X'D ) )
