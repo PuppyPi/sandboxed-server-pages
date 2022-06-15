@@ -65,6 +65,8 @@ Data types!:
 	• Struct (Custom Datatype)
 		• Mutable (ofc Variable-Size) or Immutable
 		+ Can be defined within SSP or by the container for communication with SSP!
+		+ Can inherit from another struct type!  And then you can use that struct type to access those fields of this one!  :D
+		+ By convention, field names aren't allowed to be integers in ascii base 10, and those that are, are special things (eg, for the Type special field for someone building object orientation on top of SSP! :3 )
 	
 	
 	+ Static typing is optional but improves performance
@@ -113,6 +115,9 @@ Control flow and operations!:
 			+ Represented in the abstract syntax tree as a procedure (no return value) taking a single UnicodeString input
 			+ There is a procedure one (like a tag) and one that appears to be a function with a return value but which actually just fails the program and never returns XD
 		
+		• Set a local variable
+			• Including to a literal, including a static Callable (Function/Procedure/TaglibTag/etc. :> )
+		
 		• Variables and Structs
 			• Get/Set
 				+ "gets/sets" (for structs) on untyped variables are converted to LookupGet/LookupSet for structs by the SSP parser.
@@ -121,10 +126,24 @@ Control flow and operations!:
 				• any LookupGet(struct obj, String fieldName)
 				• void LookupSet(struct obj, String fieldName, any newValue)
 		
-		• Short-circuiting boolean AND and OR (also variadic!) just like Java or most languages (except they're variadic)
+		• Conditionally evaluating things
+			• Short-circuiting boolean AND and OR (also variadic!) just like Java or most languages (except they're variadic)
+			
+			• Conditional Expression (Java "a ? b : c" and Python "b if a else c")
+				Only evaluates the part that gets returned! (eg, in case one part contains fail() !! )
 		
-		• Conditional Expression (Java "a ? b : c" and Python "b if a else c")
-			Only evaluates the part that gets returned! (eg, in case one part contains fail() !! )
+		• Partial Function Application
+			+ Given a function/procedure, you can arbitrarily (not just the first N, but any) provide values to fix the inputs at, removing them from the final function/procedure, and discard outputs, removing them from the final function/procedure, to create a new function/procedure!  To be invoked with dynamic invocation.
+		
+		
+		• NO REFLECTION OR DIGGING INSIDE THINGS X'D
+			The whole point is to be secure!!  That always ends badly when they can dig inside some platform thing they're not supposed to! X'D
+			If you want this, build it on top with an intermediate layer that stores the data every time something is done (eg, a rewriter layer that takes all SSP code and rewrites it so that Partial Function Application stores metadata into the callable objects it creates)
+			• The sole exceptions to this are these (to go along with dynamic dynamic function invocation XD')
+				• Get number and data types of inputs and outputs
+				• Get name of function as unicode string (you could see this anyway with its toString() ofc XD )
+				• Dynamically call a function/procedure, not just dynamically like "which thing is called" is dynamic, but like, the inputs and outputs and their types aren't hardcoded!  They're just normal Lists!  This is slower than normal dynamic function invocation (which is, itself, a little slower than static function invocation..but not thaaat much slower.  This is *really* slow!   ..Unless it's JIT optimized of course XD'' )
+				• See all the field names in a struct (this is already used in its definition of equality/hashcode/comparison where it's treated like a map of strings to values)
 		
 		
 		• Data Operations (Built-in Compiler Functions/Procedures)
@@ -132,6 +151,31 @@ Control flow and operations!:
 
 
 
+
+How to build things on top of SSP :3
+	• Object-Orientation
+		Just make every object be a struct that inherits from the One Very Important Struct which has one field that is a reference to a Map that is the struct's Runtime Type! :D
+		And then you can do lookups of methods by name or something in that Map to find the implementations, and then use simple Dynamic Function Invocation to call them! :D
+	
+	• Exceptions
+		Just make everything that can possibly throw an exception output a special output alongside the others, and have everything that calls it check if that output is null, and if not, "throw" what it returns (by returning it on their special output, and arbitrary undefined data on their others).
+	
+	• Lambdas/Closures
+		Define a new Function/Procedure and then use Partial Function Application on it! :D
+
+
+
+How to build things in SSP within SSP o,o
+	+ Maybe I should shrink the standard truly-core definition even further? XD''
+	• Maps
+		Just structs with references to a list it uses as the hashtable!  With a boolean list (which has a compact representation in the builtin core) as the "is it overloaded?" flag that tells if it's actually a list to naive-search through!
+	• Sets
+		Done however maps are done but with no values X3
+	• Nodes
+		Just empty mutable structs! XD
+	• How to make this all work with the standard library functions!
+		Well you need to *implement* the standard library functions and check for all these special things! XD
+		Using the truly-builtin functions!  (That are what's actually security-audited and heavily scrutinized! :3 )
 
 
 
