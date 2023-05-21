@@ -1,0 +1,83 @@
+Typing System!
+	• Boolean
+	• 8bit, 16bit, 32bit, 64bit integers
+		• Signedness doesn't exist at the Microbox Platform level in types, only in the standard library functions (eg, SignedMultiply cw. UnsignedMultiply, etc.)
+	+ Unicode doesn't exist at this level; it's just libraries X3
+	• Raw data byte-buffers
+		• Mutable and Immutable
+	• User-Defined Objects (Interface-Types and Class-Types)
+	• Environment Runtime Library -Defined Interface-Types (no Class-Types here! Implementation details of the Environment OFC aren't visible to the Microbox code!!! X'D )
+	• Environment Runtime Library -Defined Opaque Types!  Nothing can be done with them except pass them back to other Environment Defined Functions/Methods!
+	+ Enums are implemented with simple integers and type-safety is done at compile time of generating Microbox Code X3
+
+
+Functions and OOP:
+	• Standalone Functions are a thing :3
+	• OOP is simple: there are the equivalent of Java Interfaces (no default methods) and Java Classes but no Class-Class inheritance!  Only Interfaces!
+		+ Any code can reach into the internal fields of any Class for the Autobahn principle: there is absolutely no security or sandboxing between things *within* a Microbox program!  That was not factored into the design and shouldn't be relied on!!  And even if it was, culturally, people probably wouldn't put the extreme level of care that the boundaries of Microbox programs get XD'
+		+ Classes are literally just Structs with a mapping of Interface Methods to Standalone Functions.  If they implement no Interfaces, then they can only be just Structs! :3
+		+ Classes with no fields are possible, and in that case are just immutable singleton objects which have only one value and serve merely as implementation-definitions!
+		+ Classes can have each field be mutable or immutable.  When all fields are immutable, then the class is Fundamentally Immutable (as opposed to Effectively Immutable because nothing mutates it XD )
+	• Functions take 0 or more Inputs and return 0 or more Outputs, both defined by simple ordering.
+		No byref arguments! just for simplicity, and so there's no concern about the Main function of the microprogram ever even having the code to use them! (since a poorly-made Microbox Implementation could perhaps allow what are expected to be normal inputs to be mutable!!)   But this is still open to discussion!
+	• Standard and Environment libraries use RUID128's to identify each function/interface/method/opaquetype.  Each Environment is a whole thing unto itself!  Commonalities are useful only in that some of the RUIDs and structure of the APIs (like List.get) being the same across many Environments *by convention alone* means a lot of code (like ArrayList) can be shared across Microbox program source codes :>
+	• Class constructors are quite simply struct initializers, and are always required for all fields, mutable and immutable.  No code is in them!  Remember, Microbox bytecode is not meant to be linked against when compiling! It's meant to be an entire self-contained program post-compilation and doesn't even have debug symbol information (that's in an adjacent file, or in a container file format (eg, .zip file) that contains the bytecode "file" within it), so all Constructor code in source-level languages must compile down into normal Standalone Methods that call the actual lowlevel constructor, do the things, then return the initialized object!  (Also, access and permissions and things don't exist in Microbox because again, it's a fully-compiled self-contained program that only interacts through extremely well-vetted rarely-changing Environment APIs, not with other Microbox programs!!)
+
+
+
+Standard Library :>
+	• Basic Arithmetic (entirely external standalone functions)
+	• Byte Buffer operations (entirely external standalone functions)
+		• Including Equivalence
+	• Identity Equality for Classes and Mutable Byte Buffers
+		+ For Immutable Byte Buffers and Fully-Immutable Classes, there is no Identity Equality, because they might be deduplicated in normal operation or as part of the program is run or paused or restarted across nodes in a data cluster!!
+	• Run-Globals:
+		• All Microbox Code defines a special Struct Class (interface/method-less) which is the Run Globals Container.  It cannot have any immutable fields, and they are all initialized to 0/null like normal.  This class is just like the Quotas globals-container, but is completely accessible to the Microbox code, and in fact, *in*accessible to the Environment! (for sandboxing robustness)—the exact inverse of the Quota Globals.  It is passed around secretly by the platform functions the microbox functions turn into through every function, just like the Quota Globals, and it is thus not static fields like in Java, contextualized by every Type/Class, existing alongside the data, but is unique to each *run* of the Microbox Microprogram!  So that way code can be shared and *never* has mutable state that allows communication across parallel runs of the microprogram!! (or allows communication across time between sequential runs even in a single-threaded environment, which would break the perfect determinicity!)
+		• The Global Atomically Incrementing Counter that Default Hash Codes can be based on is done this way!  But that is entirely done *within* Microbox code!  It doesn't actually *have* to do that actually XD  In any case, given Perfect Determinicity For Microprograms, obviously *memory addresses* aren't going to be used like in Java/Python/most languages 8')  XD
+	+ No Complex Arithmetic like Fixed-Point Trigonometry; that's to be "statically-linked", ie, incorporated into every Microbox program that needs it as part of its source code!
+
+
+Environment Library :>
+	• Commonalities
+		• Standardized Datastructure Interfaces for Environments to use!
+	• Case-Specifics!
+		• Rendering HTML/etc. for websites!
+		• Running, transpiled to Javascript, on client web browsers
+		• Game content customization (on client or server)
+		• User-Generated Content of other kinds!
+		• (on a blockchain bleh XD )
+		• Distributed Computing like SETI@Home!! :D
+		• Mathematics for ManyMath! The extension of OEIS to other datastructures! :D
+		• Scalable infrastructure that lets computations be paused and re-started or "denormalized" and re-done in multiple places simultaneously (like database "scripts" being done in Microbox instead of vendor-specific SQL extensions!)
+		•? Embedded/Mobile/Resource-constrained systems as a simpler / cleaner / lighter-weight alternative to JVM Bytecode? o,0
+
+
+Function Body Code:
+	• It's a simple Register Machine
+	• Control Flow:
+		• It is *fully structured programming!!* (but with Returns and Unchecked Exceptions)
+			The OFFICIAL JVM FOR JAVA 8 SEGFAULTED FROM CORRUPTING ITS PROCESS IMAGE WITH BAD MACHINE CODE on me when it ran this particular electronics program that included linear algebra code that was *total spaghetti code* so I know at least some Managed Runtime Environment developers don't test this edge-case well X"D
+			So in Microbox there simply is no capacity for spaghetti code in the sense of gotos, breaks, continues, or especially breaks/continues across nest-levels of loops!!
+		• Try/Catch/Finally / Throw
+			+ Else/Success and Fail and such in Source-Level Languages can be implemented with a boolean variable and if/thens the way Breaks and Continues are :3
+		• If/Else
+		• Pre-While, Post-While
+
+
+
++ No floats or poorly-defined floating point trig math!! It has to be Perfectly deterministic to allow scaling across servers and being re-run in multiple places and stay perfectly in sync!!
+	Subjective/Arbitrary decisions on numerical approximations are to be done *within* the Microbox code so that, at the expense of code bloat from copying the trig libraries into every program that needs them, they will be guaranteed to be *perfectly* reproduced on every computer/host/platform running the same program with the same input!, client-server in game physics, server-server in scaled, distributed databases, etc.!
+
+
+
+
+
+
+
+Macrobox:
+	The ability to pause and resume Microbox code!  This allows for the CPU quotas to be handled totally differently!
+	• It can be set low and reset the CPU quota globals between each pause, and be using it for old-school Uncooperative Multitasking (Classical Non-parallel Concurrency)
+	• It can be set high, and usually pausing isn't done, but it is done when the quota is exceeded to avoid crashing the (possibly large) computation! (Namely so that it can be slowed down and put on the backburner to reduce the *average* CPU usage down to acceptable levels without having to crash their code!! :D )
+	+ Issues that are more of an issue with longer-running code:
+		• Rowhammer!!
+		• Timing Attacks (*if* the Environment Runtime Library allows for reading the real time, which breaks perfect determinicity!!)
