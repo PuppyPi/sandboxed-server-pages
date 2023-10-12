@@ -16,7 +16,11 @@
 			• Generics-Applied Things
 			• Base Datatypes
 			• Structs/Tuples
-		• Dispatchee Definitions (rimaps of Dispatchable Declarations to Functions!)
+		• Dispatchee Definitions
+			Composed of:
+			• An optional struct/tuple
+			• A nonempty rimap of Dispatchable Declarations to Functions!
+				!!• ONLY TO OUR INTERNAL FUNCTIONS FOR EASE OF SECURITY/SANDBOXING
 
 
 • Microbox Code Modules can be linked in the following way!
@@ -30,7 +34,6 @@
 	• Immutable Byte String (index into the constant pool or Immediate)
 	• Unit/Void Datatype (the datatype of input to inputless functions and output to outputless functions)
 	• Reified Function (whether internal or external!; index into itself or the External Function Declarations bank!)
-	• Reified Dispatchable Declaration (index into itself or the External Function Declarations bank!)
 	• Reified Datatype (index into itself!)
 		• Function (Compound) Datatypes
 		• Genericized (Compound) Datatypes
@@ -57,14 +60,18 @@
 	
 	Statements are:
 		• Pack/Unpack Struct/Tuple
-			• NOTE THAT STRUCTS/TUPLES CAN ONLY BE UNPACKED BY THE SAME MICROBOX MODULE THAT PACKED THEM!!!!!   This is usually implemented by every Tuple used by a Microbox Module producing its own Java Class / Runtime Type with the fields named eg, f0, f1, f2, etc.!!  Across modules and the module-container API boundary, tuples are completely opaque and only Dispatching can be done with them!!!
+			!!!!• NOTE THAT STRUCTS/TUPLES CAN ONLY BE UNPACKED BY THE SAME MICROBOX MODULE THAT PACKED THEM!!!!!   This is usually implemented by every Tuple used by a Microbox Module producing its own Java Class / Runtime Type with the fields named eg, f0, f1, f2, etc.!!  Across modules and the module-container API boundary, tuples are completely opaque and only Dispatching can be done with them!!!
 			• Outputs can be bound to variables (*defining the variable!*) or Not Unpacked, This thus also doubles as Variable Assignment!
 			• *VERY often paired with Function Invocation!!*
+			!!• Pack has two forms: Dispatchable and Undispatchable!  If Dispatchable, a Dispatchee Definition must be provided (that is, an index into our Dispatchee Definitions Pool in the bytecode X3 ), otherwise a normal Struct/Tuple (also an index into the Pool) must be provided!
+				+ There is no "create blank mutable struct"; initial values must always be explicitly provided for robustness and security and determinism!! :3
 		• Function Invocation (*no* lowlevel varargs!! for security!)
 			• Single Output can be bound to a variable or discarded.
 			• The function to invoke is a Normal Input!  And the function object is provided as a literal for Static Invocation and a local-variable-or-parameter for 
 		• Function Partial Application (but allowing any parameters to be bound, not just the first N!)
 			• The single output similarly to Function Invocation can be bound to a variable or not!
+		• Lookup Dispatchable
+			• Takes as input the (hopefully!) dispatchable object and returns either a Function object or the special Microbox UndispatchableFunction value.
 	
 	Fundamental Control Flows are:
 		• If/Else
@@ -107,6 +114,17 @@
 
 • Design requirements!!
 	
+	• INTENSE SANDBOXING OF COURSE
+		This is the reason why
+		• INTERNAL MEMORY LAYOUTS DEFINED IN ONE MODULE ***OR ESPECIALLY THE CONTAINER*** ARE INACCESSIBLE BY ANOTHER; UNPACK-STRUCT OR GET-UNION-CASE ONLY WORKS FOR STRUCTS PACKED BY THE SAME MODULE
+			• Inter-Module Interaction or Module-Container Interaction is only to be done through Dispatching (Object-Orientation) or by static functions (eg, to pass an opaque pointer you got from one module back to another function in the same module!)
+			• This means that, while, say, a struct{u32,u32,byte[]} is the same as any other struct{u32,u32,byte[]} within the SAME module, these are completely different datatypes if defined in separate modules!!!
+				• This doesn't apply to the "struct/tuples" and "alternations/unions" in function signatures!!  Because an actual Pack/Unpack Struct instruction isn't used on them!
+		• Dispatchee Definitions are not reified objects like Dispatchable Declarations and can't be passed around to other modules!
+		• Dispatchee Definitions cannot map to External Functions, only to internal ones!  If you really need that, a stub function that does nothing but call another function is plenty easy enough to implement and easy for platform implementations to compile away, being a static function invocation and all X33
+			This is because it might be easy for platform implementations to forget to perform the same safety/consistency/sandboxing/etc. checks they normally would if *actual external functions* are used!!
+		!!!!• CONTAINERS SHOULD BE EXTREMELY CAREFUL ABOUT WHAT RUNTIME LIBRARY FUNCTIONS THEY PROVIDE TO ALLOW INTROSPECTING INTO FUNCTIONS OR DISPATCHABLE DECLARATIONS!!!  Since this is the only way for Microbox Code to look inside some other Microbox Module than its own outside of explicitly allowing that for Admin Modules that are given a special interface!
+	
 	• No security violations possible with microbox code linking to other microbox code!!
 		• This is only fundamentally guaranteed if both microbox codes have exactly the same Container Libraries available to them!!
 			And different capabilities for different code is exclusively managed by instance objects provided to main() or other entrypoint functions called by the container!  Ie, Capability-Based Security!!
@@ -116,6 +134,7 @@
 		• The reason for this is so that (if the Container supports Perfect Determinism) the same microbox Function being called will *always* produce the same output for the same input!!  Like a functional language *from the external worlds point of view* while allowing either imperative (or ofc by extension functional) internal code!!
 			+ This is used for database clustering (eg, servers on different continents reliably producing the same Derived Data to be cached without having to send it over the network!), load balancing of server-side rendering and similar things (the same code produces the same results on any server!), code migration/transfer (eg, microbox being used instead of SQL allows for the query to be sent to an unspecified machine/process with the same data in the database replicated cluster and will produce the same output as a Query Predicate for example!! :DD ), client-server replication (to avoid things having to be sent over a network, like with database clustering replication but for lossy transfer that can rewind and recalculate things on recovering from a network hiccup, like for physics trajectories of sprites/objects in online video games!)  :DD
 		• This also requires No Static Mutable Data!!
+		• This is also why floats are generally absent, and fixed-point arithmetic and rounding modes and unicode and such things are implemented *within microbox* as heavily-linked-to modules so that they will be carried across networks naturally along with all the other Module Dependencies of a Database Query Module or etc.! :DD
 	
 	• Quotas!!
 		• Code size, of course, easy peasy X3   Enforced at Load Time
