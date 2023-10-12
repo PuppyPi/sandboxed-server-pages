@@ -9,6 +9,9 @@
 
 •• Todo: Dispatchable Unit Type!
 
+!!•• TODO: HOW DO YOU KILL A MICROBOX MODULE FOR USING TOO MUCH RAM/CPU IF THE STACK IS DEEPLY INTERTWINED WITH ANOTHER MICROBOX MODULE!???!!
+
+
 
 
 • There are no (mutable) static variables and there is no (mutable) static state!!
