@@ -66,7 +66,7 @@
 			!!• Pack has two forms: Dispatchable and Undispatchable!  If Dispatchable, a Dispatchee Definition must be provided (that is, an index into our Dispatchee Definitions Pool in the bytecode X3 ), otherwise a normal Struct/Tuple (also an index into the Pool) must be provided!
 				+ There is no "create blank mutable struct"; initial values must always be explicitly provided for robustness and security and determinism!! :3
 		• Function Invocation (*no* lowlevel varargs!! for security!)
-			• Single Output can be bound to a variable or discarded.
+			• The inputs are packed directly, not through Pack Struct!
 			• The function to invoke is a Normal Input!  And the function object is provided as a literal for Static Invocation and a local-variable-or-parameter for 
 		• Function Partial Application (but allowing any parameters to be bound, not just the first N!)
 			• The single output similarly to Function Invocation can be bound to a variable or not!
@@ -74,7 +74,9 @@
 			• Takes as input the (hopefully!) dispatchable object and returns either a Function object or the special Microbox UndispatchableFunction value.
 	
 	Fundamental Control Flows are:
-		• If/Else
+		• If/Else Boolean
+		• Match Alternation Type
+			+ Like If/Else but matches every possible Case for an internally-defined Alternation Type! :D
 		• (Infinite) Loop
 			• Break
 			• Continue
