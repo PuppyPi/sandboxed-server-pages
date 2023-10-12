@@ -10,5 +10,10 @@
 
 ==Macrobox==
 • MacrOS! 8>>!
+	+ Honestly, this should probably just use its own system since how inter-program API calls work while something is being saved/loaded is, of course, heavily dependent on the platform (and I only had MacrOS/RC3/ConnexOS/etc. in mind when designing this XD'' )
+
 • Pausable things like game engine agents with uncooperative multitasking (eg, C3/DS)
+	+ These could just be done by making the CAOS or Coroutine Lua/Python or other script compile into a Microbox function which returns another thing to call to run the next bit of the code :33 since it's reasonable for them to statically know in advance how much code to run per tick in non-INST blocks!
+
 • BOINC!
+	+ Should probably use WebAssembly, honestly X'D
