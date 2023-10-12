@@ -12,6 +12,11 @@
 
 
 • There are no (mutable) static variables and there is no (mutable) static state!!
+	• An analogous system can be made by providing *every function other than Main()* with an instance of a GIANT STRUCT, which includes a field for *every static field of every class in the source code!!!* XD
+		And then the Main() function instantiates a new instance of this and passes it to the other functions it calls, which then pass it along to others! :3
+		And dispatchable object instances that can be passed out into the world beyond our module and then back in must also include a field for this giant struct..which they always could do for "internal state"! :3
+		• I *think* this only doesn't work in situations that it *shouldn't* work lest the entire design goals of Microbox be violated! XD
+
 
 • A Microbox Code Module is this:
 	• Microbox Version
