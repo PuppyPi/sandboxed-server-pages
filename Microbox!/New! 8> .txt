@@ -3,14 +3,20 @@
 • A Microbox Code Module is this:
 	• Microbox Version
 	• Dispatchable Declarations
-	• Dispatchee Definitions
-	• Struct Definitions
-	• Generic Base Struct Definitions
-	• Datatype Definitions (for compactness since this is a bytecode; this is like a Constant Pool!)
 	• Functions
 	• Number of External Function Declarations (no actual declaration is provided; instead, it's checked at link time against every call-site!  Which *should*'ve been done anyway in self-consistency verification, so this is no extra work!!)
-	• Number of External Datatypes (again, no actual declaration is provided to allow for maximum forwards-compatibility!)
+	• Number of External Leaf Datatypes (no actual declaration is provided to allow for maximum forwards-compatibility!)
+	• Number of External Generic Base Datatypes (no actual declaration is provided to allow for maximum forwards-compatibility!)
 	• Constant Data (to be computed!! which allows any datatypes to be used for literals, with only byte[] as the fundamental literal!)
+		• Simply composed of a reference to a Function which takes no input!
+	
+	• Pools: Conceptually absent but present in bytecode for conciseness with variable-length things!  Including the Constant Pool!
+		• Immutable Byte String Literals
+		• Compound Datatypes
+			• Generics-Applied Things
+			• Base Datatypes
+			• Structs/Tuples
+		• Dispatchee Definitions (rimaps of Dispatchable Declarations to Functions!)
 
 
 • Microbox Code Modules can be linked in the following way!
@@ -22,16 +28,17 @@
 • Fundamental datatypes provided by the Standard Library but required by the code format itself are:
 	• Boolean (whatever type matches the inputs to loops and branches!)
 	• Immutable Byte String (index into the constant pool or Immediate)
-	• Function (whether internal or external!; index into itself or the External Function Declarations bank!)
-	• Dispatchable Declaration (index into itself or the External Function Declarations bank!)
-	• Dispatchee Definition
-	• Struct Definition
-	• Datatype (index into itself!)
+	• Unit/Void Datatype (the datatype of input to inputless functions and output to outputless functions)
+	• Reified Function (whether internal or external!; index into itself or the External Function Declarations bank!)
+	• Reified Dispatchable Declaration (index into itself or the External Function Declarations bank!)
+	• Reified Datatype (index into itself!)
 		• Function (Compound) Datatypes
 		• Genericized (Compound) Datatypes
 
 
 • Things provided by Runtime Libraries are:
+	• Dispatching!!
+		• Dispatch Lookup: takes a Dispatchable Declaration object as input and outputs an Alternation Type of the Function object or the Unmapped singleton!
 	• Arithmetic
 	• Boolean Algebra
 	• Data/Bytes/Buffers/Memory/Arrays access
@@ -49,13 +56,15 @@
 	+ There are no declarations of datatypes for local variables; instead, analysis is simply performed on the (sole) output that produces it and all inputs that use it!
 	
 	Statements are:
+		• Pack/Unpack Struct/Tuple
+			• NOTE THAT STRUCTS/TUPLES CAN ONLY BE UNPACKED BY THE SAME MICROBOX MODULE THAT PACKED THEM!!!!!   This is usually implemented by every Tuple used by a Microbox Module producing its own Java Class / Runtime Type with the fields named eg, f0, f1, f2, etc.!!  Across modules and the module-container API boundary, tuples are completely opaque and only Dispatching can be done with them!!!
+			• Outputs can be bound to variables (*defining the variable!*) or Not Unpacked, This thus also doubles as Variable Assignment!
+			• *VERY often paired with Function Invocation!!*
 		• Function Invocation (*no* lowlevel varargs!! for security!)
-			• Outputs can be bound to variables or discarded.  This thus also doubles as Variable Assignment!
+			• Single Output can be bound to a variable or discarded.
 			• The function to invoke is a Normal Input!  And the function object is provided as a literal for Static Invocation and a local-variable-or-parameter for 
 		• Function Partial Application (but allowing any parameters to be bound, not just the first N!)
 			• The single output similarly to Function Invocation can be bound to a variable or not!
-		• Unpack Struct
-			• Just like with Function Outputs, the outputs here can be discarded or variable-bound (which defines the variable!), and Discard is how you specify to Not Unpack certain fields!
 	
 	Fundamental Control Flows are:
 		• If/Else
@@ -79,15 +88,15 @@
 
 • Datatypes (semantics and operations largely defined by Standard Libraries)
 	• Leaf Types:
-		• Defined by the platform except for boolean (always #0), these take 
+		• Defined by the platform except for boolean (always #0), these take no further type parameters!  (Eg, u32, s64, uuid, enums, etc.)
 	• Function Signatures:
 		• These take a single Datatype as their input and a single datatype as their output, normally both of which will be Structs!
-			• So basically it's a 2-tuple XD
+			• So basically it's a 2-tuple XD except that any two function signatures across all of microbox that are the same are the same!  Unlike Structs/Tuples, for which ones you'd think were the same are actually tagged with Which Module Defined Them and are Incompatible Types if defined in different modules!!
 	• Generic/Product/Struct/Tuple Types:
 		• These start with a Container-Defined Generic Base Type or a Generic Struct and apply a tuple of other Datatypes to it
 			• Generic Structs are defined here and are effectively like Tuples in Haskell
 				• There is also the notion of Completely Generic Structs 
-	• (Concrete) Struct
+	• (Concrete) Structs/Tuples
 		• All Struct Definitions (concrete or generic) are combined in the identifier with an Mutable or Immutable flag!  So there is no need to define it twice!
 		+ The name "struct" is meant to confer the perception that this is the Internal Implementation-Defined Memory Layout, and as such is never exposed in Linking across Microbox Modules or Linking with the Container!
 	• Sum/Alternation/Algebraic/Union Types:
