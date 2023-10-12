@@ -1,3 +1,16 @@
+•• Todo: define Algebraic Datatyping:
+	• Internal/Nominative
+		• Only Internal can be used for Dispatchable Objects!!
+	• External/Structural
+
+•• Todo: how are Dispatchee Definitions done on Generic *Base* Types??
+	Like in Java Generics!!
+	!!• GENERICS IN FUNCTIONS DSLJKDLFKDSJFldkjfdslfkdj!!
+
+•• Todo: Dispatchable Unit Type!
+
+
+
 • There are no (mutable) static variables and there is no (mutable) static state!!
 
 • A Microbox Code Module is this:
