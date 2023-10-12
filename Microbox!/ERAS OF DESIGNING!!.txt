@@ -1,0 +1,9 @@
+0. SSP, Inspired by JSP/PHP — Originally specifically for server-side rendering web pages X33
+
+1. Original Microbox, Inspired by JVM — SSP on steroids XD  Also expected to be highly performant for heavy arithmetic things in *physics engines!!* for pixelverse! :DD
+
+2. New Microbox, Inspired by Haskell / Functional Languages — Meant to also be a good basis for Macrobox!
+
+3. Todo Microbox, Inspired by Rust — No notion of it being a basis for Macrobox, why not make things so bolted down, there's no need for a Garbage Collector to even be involved!!  It is for *micro* things after all!! XD
+	It could perhaps even be *implemented in Rust!!!* wherein rustc is included as a library into the container, and it just dynamically compiles and load into memory the modules!! :DDD
+		They'd still definitely not be *written* in Rust (at least not directly), since they would of course have to have all kinds of instructions inserted to check for memory/CPU quota exceeding and manual killing and etc. X3
