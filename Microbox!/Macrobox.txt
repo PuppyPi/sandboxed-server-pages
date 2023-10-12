@@ -1,0 +1,20 @@
+Differences from Microbox:
+	Actual bytecode:
+		• Allows mutable static variables!!!
+	
+	Design goals:
+		!!• *The Ability To Kill/ForceQuit Running Instances of Macrobox Programs!!*  (Though this is also a thing for Microbox!)
+		!!• *The Ability To Pause, Save, and Load Running Instances of Macrobox Programs!!!!*
+			At least with the expectation that calls to other macrobox programs may immediately "throw an exception" upon reloading XD
+		• Determinism is less of a priority
+	
+	Expected Container/Platform/Implementation:
+		• Full and rich concurrency control is expected to be always provided instead of just for some containers!
+		
+	
+	Expected use by module writers!:
+		• GIANNNNNNNNTTTTTTTT MODULEEEESSSSSS; Entire programs like spreadsheets or computer games or web servers or SQL databases or word processors or etc.c.!!!
+		• Or tiny things, like pauseable mods in certain game engines :3
+		• Hardly any interlinking across modules needed; modules are expected to be *ridiculously huge* statically incorporating all their utility libraries and etc. into themselves and being heavily optimized! :D
+			And they'll interact across container-defined interfaces that allow for the capacity for programs to be serialized to disk and reloaded!!  Which of course disrupts the ability to call functions on them if it hasn't returned by the time it's paused and swapped to disk or killed! XD
+			And the ability to have dynamicity like a web server like Tomcat loading web apps, or a program with plugins, is provided by an Container Nesting API!  So contained things can define their own "subcontainers" and load macrobox modules within themselves and define their own Container API to *them!*  \:DD/   (THIS IS THE PRIMARY OPPORTUNITY FOR SANDBOXING BUGS SO BE CAREFUL!!!!  But not as much as allowing them to directly load things themselves, of course XD )
