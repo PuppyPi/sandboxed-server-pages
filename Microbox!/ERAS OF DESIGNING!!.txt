@@ -7,3 +7,6 @@
 3. Todo Microbox, Inspired by Rust — No notion of it being a basis for Macrobox, why not make things so bolted down, there's no need for a Garbage Collector to even be involved!!  It is for *micro* things after all!! XD
 	It could perhaps even be *implemented in Rust!!!* wherein rustc is included as a library into the container, and it just dynamically compiles and load into memory the modules!! :DDD
 		They'd still definitely not be *written* in Rust (at least not directly), since they would of course have to have all kinds of instructions inserted to check for memory/CPU quota exceeding and manual killing and etc. X3
+	
+	edit: OH! Wait XD   If microbox is indeed *micro*, then it doesn't *need* to garbage collect while running!!  it can just free everything the microbox instance allocates upon the main() function (entrypoint function) returning!!! XDD
+		So even #1 was compatible with a Rust container!!!  It just needs to make sure that ownership of everything allocated by the microbox code passes to the function that invokes the main() function or deallocates naturally upon it returning!!  \:DD/
