@@ -1,9 +1,14 @@
+==Microbox==
 • Pixelverse
 • ManyMath/Code/Test!
 • ManySite! (!!! :DDD )
-• MacrOS! 8>>!
-• BOINC!
 • Inter-process Computation!
 	+ like sending a tiny piece of code, such as an SQL query, between completely separate Unix processes..that might not even be written in the same primary language!!
 • Various Database Clustering and Load Balancing of Computation!! :DD
 	+ eg, sending code that produces data and re-running it on different datacenters around the world if that would be faster than actually sending its output! XD
+
+
+==Macrobox==
+• MacrOS! 8>>!
+• Pausable things like game engine agents with uncooperative multitasking (eg, C3/DS)
+• BOINC!
