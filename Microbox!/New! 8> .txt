@@ -1,0 +1,115 @@
+• There are no (mutable) static variables and there is no (mutable) static state!!
+
+• A Microbox Code Module is this:
+	• Microbox Version
+	• Dispatchable Declarations
+	• Dispatchee Definitions
+	• Struct Definitions
+	• Generic Base Struct Definitions
+	• Datatype Definitions (for compactness since this is a bytecode; this is like a Constant Pool!)
+	• Functions
+	• Number of External Function Declarations (no actual declaration is provided; instead, it's checked at link time against every call-site!  Which *should*'ve been done anyway in self-consistency verification, so this is no extra work!!)
+	• Number of External Datatypes (again, no actual declaration is provided to allow for maximum forwards-compatibility!)
+	• Constant Data (to be computed!! which allows any datatypes to be used for literals, with only byte[] as the fundamental literal!)
+
+
+• Microbox Code Modules can be linked in the following way!
+	• Dispatchable Declarations which are Exactly Equivalent being linked as being The Same Thing.  Ie, when B is loaded, the equivalent mapping is provided to A and then those Dispatchable Declarations in B are the same as in A!  And objects passed between them work like you'd expect! :D
+	• Satisfying External Function Declarations with Functions from another Module!!
+		• These are also to be satisfied by the Container!
+
+
+• Fundamental datatypes provided by the Standard Library but required by the code format itself are:
+	• Boolean (whatever type matches the inputs to loops and branches!)
+	• Immutable Byte String (index into the constant pool or Immediate)
+	• Function (whether internal or external!; index into itself or the External Function Declarations bank!)
+	• Dispatchable Declaration (index into itself or the External Function Declarations bank!)
+	• Dispatchee Definition
+	• Struct Definition
+	• Datatype (index into itself!)
+		• Function (Compound) Datatypes
+		• Genericized (Compound) Datatypes
+
+
+• Things provided by Runtime Libraries are:
+	• Arithmetic
+	• Boolean Algebra
+	• Data/Bytes/Buffers/Memory/Arrays access
+
+• Things (DANGEROUSLY) provided by Container Libraries are:
+	• Advanced Garbage Collection things (Namely Collection Listeners and Weak References!)
+	• I/O / Environment
+	• Nested Container API  (so microboxen can have *their own microbox containers!!*)
+	• Concurrency/Parallelism/Threading!!
+
+• Things commonly provided by either other Microbox code that is to be linked, or by Container Libraries so that the external functions are using the same datatypes and such!
+
+
+• Code is provided in Structured Form with Single-Static Assignment
+	+ There are no declarations of datatypes for local variables; instead, analysis is simply performed on the (sole) output that produces it and all inputs that use it!
+	
+	Statements are:
+		• Function Invocation (*no* lowlevel varargs!! for security!)
+			• Outputs can be bound to variables or discarded.  This thus also doubles as Variable Assignment!
+			• The function to invoke is a Normal Input!  And the function object is provided as a literal for Static Invocation and a local-variable-or-parameter for 
+		• Function Partial Application (but allowing any parameters to be bound, not just the first N!)
+			• The single output similarly to Function Invocation can be bound to a variable or not!
+		• Unpack Struct
+			• Just like with Function Outputs, the outputs here can be discarded or variable-bound (which defines the variable!), and Discard is how you specify to Not Unpack certain fields!
+	
+	Fundamental Control Flows are:
+		• If/Else
+		• (Infinite) Loop
+			• Break
+			• Continue
+		• Return
+	
+	Syntactic Sugar constructs can include:
+		• Switch case
+		• For Loops
+		• While Loops
+		• For Each Loops
+
+
+• Functions take a fixed number of zero or more inputs with datatypes provided and output a fixed number of zero or more outputs with datatypes also provided.
+	There are no byref or "output parameters" for security, just utilize the ability to have multiple outputs!
+
+
+
+
+• Datatypes (semantics and operations largely defined by Standard Libraries)
+	• Leaf Types:
+		• Defined by the platform except for boolean (always #0), these take 
+	• Function Signatures:
+		• These take a single Datatype as their input and a single datatype as their output, normally both of which will be Structs!
+			• So basically it's a 2-tuple XD
+	• Generic/Product/Struct/Tuple Types:
+		• These start with a Container-Defined Generic Base Type or a Generic Struct and apply a tuple of other Datatypes to it
+			• Generic Structs are defined here and are effectively like Tuples in Haskell
+				• There is also the notion of Completely Generic Structs 
+	• (Concrete) Struct
+		• All Struct Definitions (concrete or generic) are combined in the identifier with an Mutable or Immutable flag!  So there is no need to define it twice!
+		+ The name "struct" is meant to confer the perception that this is the Internal Implementation-Defined Memory Layout, and as such is never exposed in Linking across Microbox Modules or Linking with the Container!
+	• Sum/Alternation/Algebraic/Union Types:
+		• These are Tagged Unions like in Rust or Haskell and could be implemented extremely performantly!  Which is important for the Output Data Definition of functions that allow for Success-or-Error alternates with effectively completely different output arities!!
+
+
+
+
+• Design requirements!!
+	
+	• No security violations possible with microbox code linking to other microbox code!!
+		• This is only fundamentally guaranteed if both microbox codes have exactly the same Container Libraries available to them!!
+			And different capabilities for different code is exclusively managed by instance objects provided to main() or other entrypoint functions called by the container!  Ie, Capability-Based Security!!
+		• No Static Mutable Data is required for this, otherwise it would be mathematically possible for A and B to share data otherwise impossible if they both call functions in C (which could store object instances from A or from B in its static variables, then hand them back out to B or A!!!)
+	
+	• Determinism!!  Though that heavily relies on the Runtime/Container libraries supporting this too, and they might have no interest in supporting that XD   But Microbox *itself* should support that!!
+		• The reason for this is so that (if the Container supports Perfect Determinism) the same microbox Function being called will *always* produce the same output for the same input!!  Like a functional language *from the external worlds point of view* while allowing either imperative (or ofc by extension functional) internal code!!
+			+ This is used for database clustering (eg, servers on different continents reliably producing the same Derived Data to be cached without having to send it over the network!), load balancing of server-side rendering and similar things (the same code produces the same results on any server!), code migration/transfer (eg, microbox being used instead of SQL allows for the query to be sent to an unspecified machine/process with the same data in the database replicated cluster and will produce the same output as a Query Predicate for example!! :DD ), client-server replication (to avoid things having to be sent over a network, like with database clustering replication but for lossy transfer that can rewind and recalculate things on recovering from a network hiccup, like for physics trajectories of sprites/objects in online video games!)  :DD
+		• This also requires No Static Mutable Data!!
+	
+	• Quotas!!
+		• Code size, of course, easy peasy X3   Enforced at Load Time
+		• Memory usage
+		• CPU usage
+		• Container-Defined Quotas (eg, Network Bandwidth X3 )
