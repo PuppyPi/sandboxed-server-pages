@@ -1,0 +1,4 @@
+Even though we allow Dynamic Function Invocation, if we make it such that "instance methods" and "static methods" are equivalent in invocation sites, then you can perform the Fancy Things rebound packagers or RC3 or etc. do by simply identifying every site that *creates* a function handle and edit that to be a reference to the replaced function and you won't *need* to edit the actual *call* sites, since they pass This as if it's to a static function anyway!!  \:D/
+
+The trick is that it's massively easier if Function Objects can only be created in a static way, not from string lookups or etc.!
+(But ofc, even if you had string lookups, you could just Replace *that* function with a static one that checked at runtime if the string parameter was a replacement target and then returned that replacement target! ;D )
