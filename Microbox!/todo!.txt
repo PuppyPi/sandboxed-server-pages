@@ -1,3 +1,6 @@
 • Exception classessssss!!
 	internal and external!!
 		esp. Divide-by-Zero!!
+
+• Polyfills for Microboxen!!! :DDD
+	+ Eg, 128-bit float math or Fancy math functions or hardware acceleration or etc.c.c.! :D
