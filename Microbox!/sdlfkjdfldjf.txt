@@ -1,0 +1,3 @@
+The underlying principle of microbox cross-sandboxing is that one Microbox Codeblock using another codeblock (perhaps by another author) must be *perfectly* equivalent to that code included directly and is ONLY a performance benefit by deduplicating shared code!!
+
+This also is *another* reason there can be no reflection in Microbox Environments.
