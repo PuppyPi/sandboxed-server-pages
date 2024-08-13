@@ -17,3 +17,31 @@
 
 • BOINC!
 	+ Should probably use WebAssembly, honestly X'D
+
+
+
+
+
+
+
+
+
+--- To-Sort: I wrote it out again randomly XD ---
++ Original Microbox Target Applications
+	• Data crunching
+		• Filesystem opaque lowlevel file compression
+		• Audio/video codec compression/decompression
+		• Cryptography core algorithm implementations
+		• Distributed computation (esp. to allow the *scientists* or other computation author to be untrusted, unlike BOINC / SETI@Home!!)
+	• Video game things
+		• Procedural world/topography/etc. generation
+		• Physics(!!)
+		• Content object "scripts"
+	• Web html/etc. generation ("server side ''rendering''" the kids call it nowdays XD )
+	• Graphics algorithms (eg, screen savers, stateless display of complex things)
+	• Database things
+		• Queries
+		• Constraints (a la the C in ACID!)
+		• Triggers
+	• Dataworld layer/object implementations
+		• Live Computations
