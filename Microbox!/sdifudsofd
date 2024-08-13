@@ -1,0 +1,19 @@
++ Usage principle of Connexos/Macrobox: Performance with networked connections
+	+ The primary way to handle that when performance is an issue is to use alternate APIs that are meant for high latency and low bandwidth environments like networking (as opposed to RAM/GPU/etc. intrasystem connection latency and bandwidth), like Scene Graph graphics APIs instead of Immediate Mode rendering! :3   (even for 2D!!)
+	+ Hints built into the connection API itself are also possible, but aren't provided by the Connexos Platform (since the concept of networking isn't part of Connexos itself and is just made of connectants and System/Environment APIs!!)
+	+ Hints can also be provided by Secondary Tethered Ports/Connections (ports which are meant to be connected in tandem with other ports to provide Extensions!)
+
++ Connexos concept that exists purely in the metadata!: Port Bundles!  Allowing ports to be grouped together as a single logical connection in GUIs (eg, with ports providing API extensions or metadata or etc.)
++ Connexos concept: Ports that use one of a number of APIs (Connection Interface Standards / Protocols) and exactly one can be used, with no concept of system-wide versioning!!  This is how versions can work without the need for defining them in particular global ways!  Each version is just its own API and each connectant on each side of it can decide its own forwards/backwards-compatibleness and compatibleness with completely unrelated specifications but which it provides the feature of supporting!  \:D/
+
+
+=====
+
+
++ Big issue with Microbox!  Nested Microboxen!! \o/
+	+ Eg, a website that is written in microbox for the Server Side "Rendering" with a Java/etc. kernel (perhaps running within macrobox 8) XD ), but which provides "themes" to be uploaded by barely-trusted users to be run in a wildly different security context!! \o/
+		+ Perhaps this could be done in that custom kernel :3
+			This is because Microbox in this case is being used to shift responsibility for security and heavy coding and things onto a different team's shoulders (the server backend) than the team using microbox (the server frontend)!
+	+ Eg, a gaming platform based on Microbox as the content "scripting language" XD but which allows users to program objects *in-game also in microbox!!* but have a completely different security context than the game creators which, themselves, have a different security context than the cloud hosting providers for multiple games!!  \8)/  XD
+		+ This should be done entirely within the game script with the capacity for an unspecified number of levels deep of nesting, with full security responsibility for the *game* being safe from the *user content* resting on the game providers' shoulders!
+			This is because Microbox in this case is being used to deal with untrusted game developers.  So it's just a normal programming language and their security within their game and code is ofc their own responsibility!  (This is ensuring they can't break out and hack other games and apps on the cloud server hoster or on users' computers, breaking out of a universal game client based on macrobox ;3 )

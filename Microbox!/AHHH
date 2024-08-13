@@ -1,0 +1,17 @@
++ The new era of Microbox is the era of Perfectly Structured Programming given that FaCS crashed the JVM version 8 with only fancy breaks and continues jumping around in loops in the matrix decomposition and other core electronics simulation engine mathematics-heavy parts 8')
+	+ And GCFS-style Reference-and-Referenceless data banks in each object :3
+		+ This way decisions about complicated volatile features like algebraic datatyping and polymorphic things and etc.c. don't have to be made at this level and yet 
+
+
++ However this means that decisions about memory layout of scalar fields (eg, should a U8 field actually be a U32 or U64 and be cast or etc.) do need to be made at that level!  And optimizations can use information available from static things in the System API! :D
+	But, frankly, this already needed to be a thing because arrays of structs needed to be in transparently accessible byte-array memory for efficiency with things like OpenGL and just minimizing the size of the bytecode anyway!  It's what Java and other languages have independently (reluctantly) realized XD
+
+
++ Most important security principle for Static Memory API and Microbox and Macrobox/Connexos!!!: YOU CAN'T GET AT THE LARGER MEMORY BLOCK FROM A SUBSLICE OF IT!!
+
++ Also important: You cannot turn a subslice immutable, only readonly!!  (Holders of the parent can still alter it!)
+
++ Immutable memory (as opposed to mutable-by-others readonly *views* of memory) can only be created by two API calls, one of which truly copies, and the other of which is allowed copy or may freeze it and render the old handle invalid.  In that second case, it returns a new Memory object which may or may not be equal to the original!  In the first case it always returns a different memory object, but which may be equivalent to other immutable memory objects GIVEN THAT ANY ACCESS TO ANOTHER MEMORY HANDLE TO PERFORM "EQUALS" ALREADY CONFERS READ ACCESS SO THIS ISN'T A HORRIFIC INFORMATION LEAK TO CIRCUMVENT NONREADABLE ACCESS BY REPEATEDLY TESTING IF X IS EQUAL TO SOMETHING YOU'RE NOT SUPPOSED TO BE ABLE TO READ XD'''
+
++ The Memory object in Java must be able to be API-equivalent to a Value Type that stores all the permissions and address for Rust/C++ and forward compatibilty with Java Version Whoknowswhen (Project Valhalla) XD
+	+ The "magic type" in those languages will compile into Micro/Macrobox bytecode which does not contain the ability to actually read the address or modify the permissions, however X3
