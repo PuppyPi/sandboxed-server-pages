@@ -1,0 +1,3 @@
++ Another reason for Microbox using the lowlevel references/referencelessdata banks system is so that the optimization of accessing things normally considered fields using integer indexes/offsets is possible! \:D/
+	Eg, no more need for "thing0, thing1, thing2, thingN[]" fields for optimizations!  They can just all be directly in the same thing and no need for the separate array object!! \:'D/
+	Obviously languages have to support this to allow a programmer access to this capability, but it's there in the bytecode (Microbox :33 )
